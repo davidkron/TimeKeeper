@@ -37,6 +37,36 @@ namespace TimeKeeper.Views
             };
             _timer.Tick += Tick;
             _timer.Start();
+
+
+
+            var folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\TimeKeeper\\";
+            Directory.CreateDirectory(folder);
+            var today = DateTime.Today.Date.ToShortDateString();
+            var dayFile = folder + today;
+            if (File.Exists(dayFile))
+            {
+                var content = File.ReadAllLines(dayFile);
+                var startedLine = content[0];
+                var stoppedLine = content[1];
+                var ranLine = content[2];
+
+                var startedString = startedLine.Substring("Started: ".Length);
+
+                started = DateTime.Parse(startedString);
+
+                File.WriteAllText(dayFile,
+                    $@"Started: {started.TimeOfDay}
+stopped: -
+ran: -");
+            }
+            else
+            {
+                File.WriteAllText(dayFile,
+                    $@"Started: {started.TimeOfDay}
+stopped: -
+ran: -");
+            }
         }
 
         private void Tick(object sender, EventArgs eventArgs)
