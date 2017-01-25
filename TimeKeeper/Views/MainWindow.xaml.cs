@@ -42,7 +42,7 @@ namespace TimeKeeper.Views
 
             var folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\TimeKeeper\\";
             Directory.CreateDirectory(folder);
-            var today = DateTime.Today.Date.ToShortDateString();
+            var today = DateTime.Today.Date.ToShortDateString().Replace("/","-");
             var dayFile = folder + today;
             if (File.Exists(dayFile))
             {
@@ -103,27 +103,9 @@ ran: -");
             base.OnClosing(e);
         }
 
-        //    System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
-        //    ni.Icon = new System.Drawing.Icon("Main.ico");
-        //    ni.Visible = true;
-        //    ni.DoubleClick +=
-        //    delegate (object sender, EventArgs args)
-        //    {
-        //        this.Show();
-        //        this.WindowState = WindowState.Normal;
-        //    };
-        //}
-
-        //protected override void OnStateChanged(EventArgs e)
-        //{
-        //    if (WindowState == System.Windows.WindowState.Minimized)
-        //        this.Hide();
-
-        //    base.OnStateChanged(e);
-        //}
         private void Exit(object sender, RoutedEventArgs e)
         {
-
+            Application.Current.Shutdown();
         }
 
         private void Open(object sender, RoutedEventArgs e)
@@ -136,6 +118,7 @@ ran: -");
         {
             Show();
             _timer.Start();
+            Focus();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
