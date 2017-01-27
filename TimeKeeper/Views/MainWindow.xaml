@@ -12,7 +12,7 @@
         d:DataContext="{d:DesignInstance viewModels:ShellViewModel}">
     <DockPanel>
         <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="50,10"
-                Content="Write" Click="Button_Click" />
+                Content="Write" Click="Write" />
         <Grid Margin="0,50" HorizontalAlignment="Center">
             <Label x:Name="Label" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="48"  />
             <tb:TaskbarIcon

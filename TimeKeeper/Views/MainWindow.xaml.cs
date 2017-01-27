@@ -25,25 +25,16 @@ namespace TimeKeeper.Views
     /// </summary>
     public partial class MainWindow  
     {
-        private DispatcherTimer _timer;
+        private DispatcherTimer _secondTickTimer;
+        private DispatcherTimer _writeEvery10MinTimer;
 
         public MainWindow()
         {
             InitializeComponent();
             started = DateTime.Now;
-            _timer = new DispatcherTimer()
-            {
-                Interval = TimeSpan.FromSeconds(1)
-            };
-            _timer.Tick += Tick;
-            _timer.Start();
+            SetupTImers();
 
-
-
-            var folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\TimeKeeper\\";
-            Directory.CreateDirectory(folder);
-            var today = DateTime.Today.Date.ToShortDateString().Replace("/","-");
-            var dayFile = folder + today;
+            var dayFile = GetDayFilePath();
             if (File.Exists(dayFile))
             {
                 var content = File.ReadAllLines(dayFile);
@@ -55,10 +46,7 @@ namespace TimeKeeper.Views
 
                 started = DateTime.Parse(startedString);
 
-                File.WriteAllText(dayFile,
-                    $@"Started: {started.TimeOfDay}
-stopped: -
-ran: -");
+                Write(null,null);
             }
             else
             {
@@ -67,6 +55,28 @@ ran: -");
 stopped: -
 ran: -");
             }
+        }
+
+        private void SetupTImers()
+        {
+            _secondTickTimer = new DispatcherTimer()
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            _secondTickTimer.Tick += Tick;
+            _secondTickTimer.Start();
+
+            _writeEvery10MinTimer = new DispatcherTimer()
+            {
+                Interval = TimeSpan.FromMinutes(10)
+            };
+            _writeEvery10MinTimer.Tick += WriteTick;
+            _writeEvery10MinTimer.Start();
+        }
+
+        private void WriteTick(object sender, EventArgs e)
+        {
+            Write(null,null);
         }
 
         private void Tick(object sender, EventArgs eventArgs)
@@ -84,7 +94,7 @@ ran: -");
             if (WindowState == WindowState.Minimized)
             {
                 Hide();
-                _timer.Stop();
+                _secondTickTimer.Stop();
             }
 
             base.OnStateChanged(e);
@@ -98,7 +108,7 @@ ran: -");
             e.Cancel = true;
 
             Hide();
-            _timer.Stop();
+            _secondTickTimer.Stop();
 
             base.OnClosing(e);
         }
@@ -111,28 +121,33 @@ ran: -");
         private void Open(object sender, RoutedEventArgs e)
         {
             Show();
-            _timer.Start();
+            _secondTickTimer.Start();
         }
 
         private void DoubleClickTray(object sender, RoutedEventArgs e)
         {
             Show();
-            _timer.Start();
+            _secondTickTimer.Start();
             Focus();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Write(object sender, RoutedEventArgs e)
         {
-            
-            var folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\TimeKeeper\\";
-            System.IO.Directory.CreateDirectory(folder);
-            var today = DateTime.Today.Date.ToShortDateString();
-            File.WriteAllText(folder+ today,
-$@"Started: {started}
-stopped: {DateTime.Now}
-ran: {DateTime.Now - started}");
-            File.AppendAllText(folder + "All.txt", $@"{today}: { DateTime.Now - started}");
+            var dayFile = GetDayFilePath();
+            File.WriteAllText(dayFile,
+$@"Started: {started.ToShortTimeString()}
+stopped: {DateTime.Now.ToShortTimeString()}
+ran: {(DateTime.Now - started)}");
+            //File.AppendAllText(folder + "All.txt", $@"{today}: { DateTime.Now - started}");
+        }
 
+        private static string GetDayFilePath()
+        {
+            var folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\TimeKeeper\\";
+            Directory.CreateDirectory(folder);
+            var today = DateTime.Today.Date.ToShortDateString().Replace("/", "-");
+            var dayFile = folder + today;
+            return dayFile;
         }
     }
 }
